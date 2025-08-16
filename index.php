@@ -2,7 +2,13 @@
 // =========================== SESSION & DATA ===========================
 session_start();
 
-// Demo data awal, hanya dipakai sekali saat session baru
+// Untuk reset data
+// $_SESSION['tasks'] = [
+//     [ 'id' => 1, 'title' => 'Belajar PHP',       'status' => 'belum'   ],
+//     [ 'id' => 2, 'title' => 'Kerjakan tugas UX', 'status' => 'selesai' ],
+// ];
+
+// Data awal, hanya dipakai sekali saat session baru
 if (!isset($_SESSION['tasks'])) {
   $_SESSION['tasks'] = [
     [ 'id' => 1, 'title' => 'Belajar PHP',       'status' => 'belum'   ],
@@ -30,21 +36,17 @@ function buildQueryUrl(array $params): string {
 
 /** Redirect bersih (hapus parameter action/id agar PRG aman) */
 function redirect_clean(?string $notif = null): void {
+  if ($notif !== null) $_SESSION['notif'] = $notif;
   $path = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
-  $keep = $_GET;
-  unset($keep['action'], $keep['id']); // buang pemicu aksi
-  if ($notif !== null) $keep['notif'] = $notif;
-  $url = $path . (empty($keep) ? '' : '?' . http_build_query($keep));
-  // 303 untuk menghindari re-POST saat refresh/back
-  header('Location: ' . $url, true, 303);
+  header('Location: ' . $path, true, 303);
   exit;
 }
 
 /** Ambil notifikasi dari query (opsional, biar tahan terhadap PRG) */
 function takeNotif(): string {
-  if (!isset($_GET['notif'])) return '';
-  // Tampilkan sekali lalu bersihkan via PRG ringan
-  $msg = (string)$_GET['notif'];
+  if (!isset($_SESSION['notif'])) return '';
+  $msg = $_SESSION['notif'];
+  unset($_SESSION['notif']);
   return $msg;
 }
 
@@ -158,12 +160,13 @@ if (($_GET['action'] ?? '') === 'toggle') {
 // Ambil notif dari query (jika ada) setelah PRG
 $notif = $notif ?: takeNotif();
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aplikasi Todolist (Session Mock → MySQL)</title>
+  <title>Aplikasi Todolist</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap');
@@ -179,6 +182,13 @@ $notif = $notif ?: takeNotif();
       <div class="rounded-md border border-blue-200 bg-blue-50 text-blue-700 px-3 py-2 text-sm">
         <?= h($notif) ?>
       </div>
+      <script>
+        if (history.replaceState) {
+          const url = new URL(window.location);
+          url.searchParams.delete('notif');
+          history.replaceState({}, document.title, url.pathname + url.search);
+        }
+      </script>
     <?php endif; ?>
 
     <!-- Form tambah (POST) -->
