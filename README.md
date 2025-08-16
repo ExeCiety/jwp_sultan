@@ -5,7 +5,7 @@ Aplikasi sederhana berbasis PHP untuk mencatat tugas harian.
 
 ## Fitur
 - Tambah tugas
-- Tandai tugai selesai
+- Tandai tugas selesai
 - Hapus tugas
 
 ## Struktur Folder
@@ -16,5 +16,5 @@ Aplikasi sederhana berbasis PHP untuk mencatat tugas harian.
 2. Jalankan XAMPP dan buka di 'http://localhost/todolist'
 
 ## Kontributor
-- [Nama Anda](https://github.com/ExeCiety)
+- [Moch Sultan Majid](https://github.com/ExeCiety)
 
